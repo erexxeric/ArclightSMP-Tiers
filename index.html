@@ -16,7 +16,7 @@
 <div id="board"></div><p class="hint">Desktop: drag an image between tiers.<br>Tablet/phone: tap an image to select it, then tap its tier button above. Dragging also works on many touch browsers.</p>
 </div>
 <script>
-const PASS='CHANGE_THIS_PASSWORD';const tiers=['S','A','B','C','D','F'];
+const PASS='erexxcontrolpanel31';const tiers=['S','A','B','C','D','F'];
 let data;try{data=JSON.parse(localStorage.getItem('arcTier'))}catch(e){};data=data||{S:[],A:[],B:[],C:[],D:[],F:[]};
 let admin=false,drag=null,selected=null;
 const board=document.getElementById('board'),pw=document.getElementById('pw'),msg=document.getElementById('msg'),panel=document.getElementById('panel');

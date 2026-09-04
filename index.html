@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ArcLight SMP Tierlist</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101217;color:#fff;font:16px Arial,sans-serif}.head{text-align:center;padding:20px;background:#171a21;border-bottom:2px solid #2b303b}.logo{max-width:300px;max-height:90px;object-fit:contain}.wrap{max-width:1050px;margin:18px auto;padding:0 10px}.admin{background:#171a21;padding:12px;border:1px solid #303642;border-radius:10px;margin-bottom:15px}button,input,select{padding:9px;border-radius:7px;border:1px solid #444;background:#101217;color:#fff}button{background:#5865f2;border:0;cursor:pointer}.tier{display:flex;min-height:100px;margin:8px 0;background:#191d25;border:1px solid #303642;border-radius:10px;overflow:hidden}.label{width:72px;display:grid;place-items:center;font-size:31px;font-weight:900;flex-shrink:0}.drop{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px;min-width:0}.drop.over{background:#272d38}.p{width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #444;cursor:grab;touch-action:none;user-select:none}.p.selected{outline:4px solid #fff;outline-offset:2px}.S{background:#e74c3c}.A{background:#e67e22}.B{background:#f1c40f;color:#111}.C{background:#2ecc71}.D{background:#3498db}.F{background:#9b59b6}.hint{color:#929aa8;text-align:center;font-size:13px;line-height:1.5}.hidden{display:none}.controls{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:10px}@media(max-width:600px){.label{width:55px}.p{width:65px;height:65px}.logo{max-width:230px}.tier{min-height:82px}}
+</style></head>
+<body>
+<div class="head"><img class="logo" src="arclight-logo.png" alt="ArcLight SMP"><h1>ArcLight SMP Tierlist</h1><div>Overall Rankings</div></div>
+<div class="wrap">
+<div class="admin">
+<div id="login"><input id="pw" type="password" placeholder="Admin password"><button id="loginBtn">Admin Login</button> <span id="msg"></span></div>
+<div id="panel" class="hidden"><b>Admin mode</b><div class="controls"><select id="sel"><option>S</option><option>A</option><option>B</option><option>C</option><option>D</option><option>F</option></select><input id="files" type="file" accept="image/*" multiple><button id="logout">Logout</button></div><div class="controls"><span>Selected image:</span><button data-move="S">S</button><button data-move="A">A</button><button data-move="B">B</button><button data-move="C">C</button><button data-move="D">D</button><button data-move="F">F</button></div></div>
+</div>
+<div id="board"></div><p class="hint">Desktop: drag an image between tiers.<br>Tablet/phone: tap an image to select it, then tap its tier button above. Dragging also works on many touch browsers.</p>
+</div>
+<script>
+const PASS='CHANGE_THIS_PASSWORD';const tiers=['S','A','B','C','D','F'];
+let data;try{data=JSON.parse(localStorage.getItem('arcTier'))}catch(e){};data=data||{S:[],A:[],B:[],C:[],D:[],F:[]};
+let admin=false,drag=null,selected=null;
+const board=document.getElementById('board'),pw=document.getElementById('pw'),msg=document.getElementById('msg'),panel=document.getElementById('panel');
+function save(){localStorage.setItem('arcTier',JSON.stringify(data))}
+function move(from,i,to){if(!admin||!data[from]||i<0||i>=data[from].length)return;const x=data[from].splice(i,1)[0];data[to].push(x);selected=null;drag=null;save();render()}
+function render(){board.innerHTML='';tiers.forEach(t=>{const row=document.createElement('div');row.className='tier';const lab=document.createElement('div');lab.className='label '+t;lab.textContent=t;const z=document.createElement('div');z.className='drop';z.dataset.t=t;z.ondragover=e=>{if(admin){e.preventDefault();z.classList.add('over')}};z.ondragleave=()=>z.classList.remove('over');z.ondrop=e=>{e.preventDefault();z.classList.remove('over');if(admin&&drag)move(drag.t,drag.i,t)};
+ data[t].forEach((src,i)=>{const im=document.createElement('img');im.src=src;im.className='p'+(selected&&selected.t===t&&selected.i===i?' selected':'');im.draggable=admin;im.ondragstart=()=>{drag={t,i}};im.ondragend=()=>{drag=null};im.onclick=()=>{if(admin){selected={t,i};render()}};z.appendChild(im)});row.append(lab,z);board.appendChild(row)})}
+function login(){if(pw.value===PASS){admin=true;document.getElementById('login').classList.add('hidden');panel.classList.remove('hidden');msg.textContent='';render()}else msg.textContent='Wrong password'}
+document.getElementById('loginBtn').onclick=login;pw.onkeydown=e=>{if(e.key==='Enter')login()};document.getElementById('logout').onclick=()=>location.reload();
+document.getElementById('files').onchange=e=>{if(!admin)return;const tier=document.getElementById('sel').value;[...e.target.files].forEach(f=>{const r=new FileReader();r.onload=()=>{data[tier].push(r.result);save();render()};r.readAsDataURL(f)});e.target.value=''};
+document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{if(selected)move(selected.t,selected.i,b.dataset.move)});
+render();
+</script></body></html>
